@@ -10,7 +10,7 @@ class AcmeMapClass {
     constructor(elem, options = {}, custom_configs = {}) {
         this.elem = elem;
         this.options = options;
-        this.configs = { ...ACME_MAP_CONFIGS, ...custom_configs };
+        this.configs = {...ACME_MAP_CONFIGS, ...custom_configs };
     }
 
     create() {
@@ -20,8 +20,8 @@ class AcmeMapClass {
         this.updateZoomLevel();
         this.drawitems();
         // this.showInputs();
-        this.addlayerGroups(this.options.layerGroups);
-        this.addLayerGroupsAPI(this.options.layerGroupsAPI.apiURL, this.options.layerGroupsAPI.apiMethod);
+        if (this.options.layerGroups) this.addlayerGroups(this.options.layerGroups);
+        if (this.options.layerGroupsAPI) this.addLayerGroupsAPI(this.options.layerGroupsAPI.apiURL, this.options.layerGroupsAPI.apiMethod);
     }
 
     addTiles() {
@@ -56,7 +56,7 @@ class AcmeMapClass {
     addLayerGroupsAPI(apiURL, apiMethod) {
         var self = this;
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
+        xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText).data;
                 self.options.layerGroups.push(...data);
@@ -92,9 +92,7 @@ class AcmeMapClass {
     drawitems() {
         var drawnItems = new L.FeatureGroup();
         this.map.addLayer(drawnItems);
-
         var mode = this.options.mode;
-        console.log('internal',mode)
         var drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: drawnItems
@@ -165,7 +163,7 @@ class AcmeMapClass {
     drawdelete(drawnItems) {
         var mode = this.options.mode;
         var index = this.options.index;
-        this.map.on('draw:deleted', function (e) {
+        this.map.on('draw:deleted', function(e) {
             if (mode == 'marker') {
                 document.getElementById(`lat_${index}`).value = "";
                 document.getElementById(`lng_${index}`).value = "";
@@ -181,13 +179,6 @@ class AcmeMapClass {
     showInputs() {
         document.getElementById(`add_${this.options.mode}_${this.options.index}`).style.display = 'block';
     }
-    addLayerGroup() {
-        var littleton = L.marker([39.61, -105.02]).bindPopup('This is Littleton, CO.'),
-            denver = L.marker([39.74, -104.99]).bindPopup('This is Denver, CO.'),
-            aurora = L.marker([39.73, -104.8]).bindPopup('This is Aurora, CO.'),
-            golden = L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.');
-        var cities = L.layerGroup([littleton, denver, aurora, golden]);
 
-    }
 
 }

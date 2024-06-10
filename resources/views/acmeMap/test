@@ -1,426 +1,453 @@
 function addMarker() {
-                const {
-                    index,
-                    map
-                } = this;
-                // console.log(this);
-                var lat = document.getElementById(`lat_${index}`).value;
-                var lng = document.getElementById(`lng_${index}`).value;
+    const {
+        index,
+        map
+    } = this;
+    // console.log(this);
+    var lat = document.getElementById(`lat_${index}`).value;
+    var lng = document.getElementById(`lng_${index}`).value;
 
-                if (!isNaN(lat) && !isNaN(lng) && lat !== '' && lng !== '') {
-                    lat = parseFloat(lat);
-                    lng = parseFloat(lng);
+    if (!isNaN(lat) && !isNaN(lng) && lat !== '' && lng !== '') {
+        lat = parseFloat(lat);
+        lng = parseFloat(lng);
 
-                    var marker = L.marker([lat, lng]).addTo(map);
-                    map.setView([lat, lng], {{ config('leaflet.zoom_level') }});
-                } else {
-                    alert('Please enter valid latitude and longitude values.');
-                }
-            }
+        var marker = L.marker([lat, lng]).addTo(map);
+        map.setView([lat, lng], {
+            { config('leaflet.zoom_level') }
+        });
+    } else {
+        alert('Please enter valid latitude and longitude values.');
+    }
+}
 
-            function addPolyline() {
-                const {
-                    index,
-                    map
-                } = this;
-                var input = document.getElementById(`polyline_${index}`).value.trim();
-                if (!input) {
-                    alert('Please enter coordinates.');
-                    return;
-                }
+function addPolyline() {
+    const {
+        index,
+        map
+    } = this;
+    var input = document.getElementById(`polyline_${index}`).value.trim();
+    if (!input) {
+        alert('Please enter coordinates.');
+        return;
+    }
 
-                var latlngs = JSON.parse(input);
+    var latlngs = JSON.parse(input);
 
-                if (!Array.isArray(latlngs)) {
-                    alert('Please enter valid JSON format.');
-                    return;
-                }
-                latlngs = latlngs.map(function(coord) {
-                    return [coord.lat, coord.lng];
-                });
+    if (!Array.isArray(latlngs)) {
+        alert('Please enter valid JSON format.');
+        return;
+    }
+    latlngs = latlngs.map(function(coord) {
+        return [coord.lat, coord.lng];
+    });
 
-                var polyline = L.polyline(latlngs, {
-                    color: 'blue',
-                }).addTo(map);
+    var polyline = L.polyline(latlngs, {
+        color: 'blue',
+    }).addTo(map);
 
-                if (latlngs.length > 0) {
-                    map.setView(latlngs[0],
-                        {{ config('leaflet.zoom_level') }}
-                    );
-                }
-            }
+    if (latlngs.length > 0) {
+        map.setView(latlngs[0], {
+            { config('leaflet.zoom_level') }
+        });
+    }
+}
 
-            function addPolygon() {
-                const {
-                    index,
-                    map
-                } = this;
-                var input = document.getElementById(`polygon_${index}`).value.trim();
-                if (!input) {
-                    alert('Please enter coordinates.');
-                    return;
-                }
-                var latlngs = JSON.parse(input);
-                if (!Array.isArray(latlngs)) {
-                    alert('Please enter valid JSON format.');
-                    return;
-                }
-                // Now latlngs contains an array of latlngs objects
-                // Convert them to Leaflet-compatible latlngs array
-                latlngs = latlngs.map(function(coord) {
-                    return [coord.lat, coord.lng];
-                });
+function addPolygon() {
+    const {
+        index,
+        map
+    } = this;
+    var input = document.getElementById(`polygon_${index}`).value.trim();
+    if (!input) {
+        alert('Please enter coordinates.');
+        return;
+    }
+    var latlngs = JSON.parse(input);
+    if (!Array.isArray(latlngs)) {
+        alert('Please enter valid JSON format.');
+        return;
+    }
+    // Now latlngs contains an array of latlngs objects
+    // Convert them to Leaflet-compatible latlngs array
+    latlngs = latlngs.map(function(coord) {
+        return [coord.lat, coord.lng];
+    });
 
-                var polyline = L.polyline(latlngs, {
-                    color: 'blue'
-                }).addTo(map);
+    var polyline = L.polyline(latlngs, {
+        color: 'blue'
+    }).addTo(map);
 
-                if (latlngs.length > 0) {
-                    map.setView(latlngs[0], 19); // Set view to the first coordinate, adjust zoom level as needed
-                }
-            }
+    if (latlngs.length > 0) {
+        map.setView(latlngs[0], 19); // Set view to the first coordinate, adjust zoom level as needed
+    }
+}
 
-            function addCircle() {
-                const {
-                    index,
-                    map
-                } = this;
-                var input = document.getElementById(`circle_${index}`).value.trim();
-                if (!input) {
-                    alert('Please enter coordinates.');
-                    return;
-                }
+function addCircle() {
+    const {
+        index,
+        map
+    } = this;
+    var input = document.getElementById(`circle_${index}`).value.trim();
+    if (!input) {
+        alert('Please enter coordinates.');
+        return;
+    }
 
-                try {
-                    var circleData = JSON.parse(input);
-                } catch (e) {
-                    alert('Invalid JSON format.');
-                    return;
-                }
-                if (!circleData.center || typeof circleData.radius !== 'number') {
-                    alert('Please enter valid center coordinates and radius.');
-                    return;
-                }
+    try {
+        var circleData = JSON.parse(input);
+    } catch (e) {
+        alert('Invalid JSON format.');
+        return;
+    }
+    if (!circleData.center || typeof circleData.radius !== 'number') {
+        alert('Please enter valid center coordinates and radius.');
+        return;
+    }
 
-                var center = [circleData.center[0], circleData.center[1]];
-                var radius = circleData.radius;
+    var center = [circleData.center[0], circleData.center[1]];
+    var radius = circleData.radius;
 
-                var circle = L.circle(center, {
-                    radius: radius,
-                    color: 'blue',
-                    fillColor: '#f03',
-                    fillOpacity: 0.5
-                }).addTo(map);
+    var circle = L.circle(center, {
+        radius: radius,
+        color: 'blue',
+        fillColor: '#f03',
+        fillOpacity: 0.5
+    }).addTo(map);
 
-                map.setView(center, {{ config('leaflet.zoom_level') }}); // Adjust zoom level as needed
-            }
+    map.setView(center, {
+        { config('leaflet.zoom_level') }
+    }); // Adjust zoom level as needed
+}
 
-            function addRectangle() {
-                const {
-                    index,
-                    map
-                } = this;
-                var input = document.getElementById(`rectangle_${index}`).value.trim();
-                if (!input) {
-                    alert('Please enter coordinates.');
-                    return;
-                }
+function addRectangle() {
+    const {
+        index,
+        map
+    } = this;
+    var input = document.getElementById(`rectangle_${index}`).value.trim();
+    if (!input) {
+        alert('Please enter coordinates.');
+        return;
+    }
 
-                try {
-                    var bounds = JSON.parse(input);
-                } catch (e) {
-                    alert('Invalid JSON format.');
-                    return;
-                }
-                if (!Array.isArray(bounds) ||
-                    !bounds[0].lat || !bounds[0].lng ||
-                    !bounds[1].lat || !bounds[1].lng) {
-                    alert('Please enter valid JSON format with two sets of coordinates.');
-                    return;
-                }
+    try {
+        var bounds = JSON.parse(input);
+    } catch (e) {
+        alert('Invalid JSON format.');
+        return;
+    }
+    if (!Array.isArray(bounds) ||
+        !bounds[0].lat || !bounds[0].lng ||
+        !bounds[1].lat || !bounds[1].lng) {
+        alert('Please enter valid JSON format with two sets of coordinates.');
+        return;
+    }
 
-                // Convert bounds to Leaflet-compatible LatLng objects
-                var latlngBounds = [
-                    [bounds[0].lat, bounds[0].lng],
-                    [bounds[1].lat, bounds[1].lng]
-                ];
+    // Convert bounds to Leaflet-compatible LatLng objects
+    var latlngBounds = [
+        [bounds[0].lat, bounds[0].lng],
+        [bounds[1].lat, bounds[1].lng]
+    ];
 
-                var rectangle = L.rectangle(latlngBounds, {
-                    color: 'blue',
-                    weight: 1
-                }).addTo(map);
+    var rectangle = L.rectangle(latlngBounds, {
+        color: 'blue',
+        weight: 1
+    }).addTo(map);
 
-                map.fitBounds(rectangle.getBounds());
-            }
-            // containers.forEach((ele, index) => {
-            //     var map = L.map(ele).setView([{{ config('leaflet.center_point') }}],
-            //         {{ config('leaflet.zoom_level') }});
-            //     createMap(map, mapModes[index], index);
-            // });
-
-
-            // map = L.map('map2').setView([{{ config('leaflet.center_point') }}], {{ config('leaflet.zoom_level') }});
-
-
-
-
-            // PHP loop to generate JavaScript for each tile layer
-            function createMap(map, mapMode, index) {
-                var baseMaps = {};
-                @foreach (config('leaflet.tiles') as $tileName => $tileConfig)
-                    var {{ $tileName }}Layer = L.tileLayer("{{ $tileConfig['url'] }}", {
-                        maxZoom: {{ config('leaflet.max_zoom_level') }},
-                        minZoom: {{ config('leaflet.min_zoom_level') }},
-                        attribution: '{{ config('leaflet.attribution') }}'
-                    });
-                    baseMaps["{{ ucfirst(str_replace('_', ' ', $tileName)) }}"] = {{ $tileName }}Layer;
-
-                    @if ($tileName === config('leaflet.default_tiles'))
-                        {{ $tileName }}Layer.addTo(map);
-                        var miniMapLayer = {{ $tileName }}Layer;
-                    @endif
-                @endforeach
-
-                // Add the layers control to the map
-                L.control.layers(baseMaps).addTo(map);
+    map.fitBounds(rectangle.getBounds());
+}
+// containers.forEach((ele, index) => {
+//     var map = L.map(ele).setView([{{ config('leaflet.center_point') }}],
+//         {{ config('leaflet.zoom_level') }});
+//     createMap(map, mapModes[index], index);
+// });
 
 
-                // Add Fullscreen control
-                @if (config('leaflet.show_full_screen'))
-                    map.addControl(new L.Control.Fullscreen());
-                @endif
+// map = L.map('map2').setView([{{ config('leaflet.center_point') }}], {{ config('leaflet.zoom_level') }});
 
 
-                // Add MiniMap control
-
-                @if (config('leaflet.mini_map.display'))
-                    var miniMapLayer = L.tileLayer(miniMapLayer._url, {});
-                    new L.Control.MiniMap(miniMapLayer, {
-                        toggleDisplay: {{ config('leaflet.mini_map.toggle') }},
-                        minimized: {{ config('leaflet.mini_map.minimized') }},
-                        zoomLevelOffset: {{ config('leaflet.mini_map.zoom_level_offset') }},
-                        position: '{{ config('leaflet.mini_map.position') }}',
-                    }).addTo(map);
-                @endif
-
-                // Function to update zoom level display
-
-                function updateZoomLevel() {
-                    // console.log(e);
-                    var zoomLevel = map.getZoom();
-                    document.getElementById(`zoom-level-${index}`).innerText = 'Zoom level: ' + zoomLevel;
-                }
-                // Update the zoom level display when the zoom changes
-                map.on('zoomend', updateZoomLevel);
-                // Initialize the zoom level display
-                updateZoomLevel();
-
-                // ------------------------------------ drawControl-------------------------------------------------------------------------------
-                var drawnItems = new L.FeatureGroup();
-                map.addLayer(drawnItems);
-
-                var drawControl = new L.Control.Draw({
-                    edit: {
-                        featureGroup: drawnItems
-                    },
-                    draw: {
-                        polygon: mapMode == 'polygon',
-                        polyline: false,
-                        circle: false,
-                        marker: false,
-                        circlemarker: false,
-                        rectangle: false
-                    }
-                });
-                map.addControl(drawControl);
-                //---------------------------map mode switch-------------------------------
-
-                map.on('draw:created', function(e) {
-                    var layer = e.layer;
-                    drawnItems.addLayer(layer);
-                    if (mapMode === 'marker') {
-                        var latlng = layer.getLatLng();
-                        document.getElementById(`lat_${index}`).value = latlng.lat;
-                        document.getElementById(`lng_${index}`).value = latlng.lng;
-
-                    }
-                    if (mapMode === 'polyline') {
-                        var latLngs = JSON.stringify(layer.getLatLngs());
-                        document.getElementById(`polyline_${index}`).value = latLngs;
-                    }
-                    if (mapMode === 'polygon') {
-                        var latlng = JSON.stringify(layer.getLatLngs()[0]);
-                        console.log(layer.getLatLngs());
-                        document.getElementById(`polygon_${index}`).value = latlng;
-                    }
-                    if (mapMode === 'circle') {
-                        var latlng = layer.getLatLng();
-                        var radius = layer.getRadius();
-                        var circleData = {
-                            center: [latlng.lat, latlng.lng],
-                            radius: radius
-                        };
-                        var circleDataString = JSON.stringify(circleData);
-                        document.getElementById(`circle_${index}`).value = circleDataString;
-                    }
-                    if (mapMode === 'rectangle') {
-                        var latLngs = JSON.stringify(layer.getLatLngs());
-                        document.getElementById(`rectangle_${index}`).value = latLngs;
-                    }
-                });
-                map.on('draw:edited', function(e) {
-                    var layers = e.layers;
-                    layers.eachLayer(function(layer) {
-                        if (mapMode === 'marker') {
-                            var latlng = layer.getLatLng();
-                            document.getElementById(`lat_${index}`).value = latlng.lat;
-                            document.getElementById(`lng_${index}`).value = latlng.lng;
-
-                        }
-                        if (mapMode === 'polyline') {
-                            var latLngs = JSON.stringify(layer.getLatLngs());
-                            document.getElementById(`polyline_${index}`).value = latLngs;
-                        }
-                        if (mapMode === 'polygon') {
-                            var latlng = JSON.stringify(layer.getLatLngs()[0]);
-                            document.getElementById(`polygon_${index}`).value = latlng;
-                        }
-                        if (mapMode === 'circle') {
-                            var latlng = layer.getLatLng();
-                            var radius = layer.getRadius();
-                            var circleData = {
-                                center: [latlng.lat, latlng.lng],
-                                radius: radius
-                            };
-                            var circleDataString = JSON.stringify(circleData);
-                            document.getElementById(`circle_${index}`).value = circleDataString;
-                        }
-                        if (mapMode === 'rectangle') {
-                            var latLngs = JSON.stringify(layer.getLatLngs());
-                            document.getElementById(`rectangle_${index}`).value = latLngs;
-                        }
-                    });
-                });
-                map.on('draw:deleted', function(e) {
-                    document.getElementById('lat').value = "";
-                    document.getElementById('lng').value = "";
-                    document.getElementById('polyline').value = "";
-                    document.getElementById('rectangle').value = "";
-                    document.getElementById('circle').value = "";
-                    document.getElementById('polygon').value = "";
-                });
 
 
-                /*------------------add marker function-------------------------*/
-                if (mapMode == 'marker') {
-                    document.getElementById(`add_marker_${index}`).style.display = 'block';
-                    // console.log(markercomponent);
-                    var drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems
-                        },
-                        draw: {
-                            polygon: false,
-                            polyline: false,
-                            circle: false,
-                            marker: false,
-                            circlemarker: false,
-                            rectangle: false
-                        }
-                    });
-                    document.getElementById(`btn_marker_${index}`).addEventListener('click', addMarker.bind({
-                        index,
-                        map
-                    }))
-                }
+// PHP loop to generate JavaScript for each tile layer
+function createMap(map, mapMode, index) {
+    var baseMaps = {};
+    @foreach(config('leaflet.tiles') as $tileName => $tileConfig)
+    var {
+        { $tileName }
+    }
+    Layer = L.tileLayer("{{ $tileConfig['url'] }}", {
+        maxZoom: {
+            { config('leaflet.max_zoom_level') }
+        },
+        minZoom: {
+            { config('leaflet.min_zoom_level') }
+        },
+        attribution: '{{ config('
+        leaflet.attribution ') }}'
+    });
+    baseMaps["{{ ucfirst(str_replace('_', ' ', $tileName)) }}"] = {
+        { $tileName }
+    }
+    Layer;
 
-                /*------------------add polygon function-------------------------*/
-                if (mapMode == 'polygon') {
-                    document.getElementById(`add_polygon_${index}`).style.display = 'block';
-                    var drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems
-                        },
-                        draw: {
-                            polygon: false,
-                            polyline: false,
-                            circle: false,
-                            marker: false,
-                            circlemarker: false,
-                            rectangle: false
-                        }
-                    });
-                    document.getElementById(`btn_polygon_${index}`).addEventListener('click', addPolygon.bind({
-                        index,
-                        map
-                    }))
-                }
-                /*------------------add polyline function-------------------------*/
+    @if($tileName === config('leaflet.default_tiles')) {
+        { $tileName }
+    }
+    Layer.addTo(map);
+    var miniMapLayer = {
+        { $tileName }
+    }
+    Layer;
+    @endif
+    @endforeach
 
-                if (mapMode == 'polyline') {
-                    document.getElementById(`add_polyline_${index}`).style.display = 'block';
-                    var drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems
-                        },
-                        draw: {
-                            polygon: false,
-                            polyline: false,
-                            circle: false,
-                            marker: false,
-                            circlemarker: false,
-                            rectangle: false
-                        }
-                    });
-                    document.getElementById(`btn_polyline_${index}`).addEventListener('click', addPolyline.bind({
-                        index,
-                        map
-                    }))
+    // Add the layers control to the map
+    L.control.layers(baseMaps).addTo(map);
 
-                }
-                /*------------------add rectangle function-------------------------*/
 
-                if (mapMode == 'rectangle') {
-                    document.getElementById(`add_rectangle_${index}`).style.display = 'block';
-                    var drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems
-                        },
-                        draw: {
-                            polygon: false,
-                            polyline: false,
-                            circle: false,
-                            marker: false,
-                            circlemarker: false,
-                            rectangle: false
-                        }
-                    });
-                    document.getElementById(`btn_rectangle_${index}`).addEventListener('click', addRectangle.bind({
-                        index,
-                        map
-                    }))
+    // Add Fullscreen control
+    @if(config('leaflet.show_full_screen'))
+    map.addControl(new L.Control.Fullscreen());
+    @endif
 
-                }
-                /*------------------add circle function-------------------------*/
-                if (mapMode == 'circle') {
-                    document.getElementById(`add_circle_${index}`).style.display = 'block';
-                    var drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems
-                        },
-                        draw: {
-                            polygon: false,
-                            polyline: false,
-                            circle: false,
-                            marker: false,
-                            circlemarker: false,
-                            rectangle: false
-                        }
-                    });
-                    document.getElementById(`btn_circle_${index}`).addEventListener('click', addCircle.bind({
-                        index,
-                        map
-                    }))
-                }
+
+    // Add MiniMap control
+
+    @if(config('leaflet.mini_map.display'))
+    var miniMapLayer = L.tileLayer(miniMapLayer._url, {});
+    new L.Control.MiniMap(miniMapLayer, {
+        toggleDisplay: {
+            { config('leaflet.mini_map.toggle') }
+        },
+        minimized: {
+            { config('leaflet.mini_map.minimized') }
+        },
+        zoomLevelOffset: {
+            { config('leaflet.mini_map.zoom_level_offset') }
+        },
+        position: '{{ config('
+        leaflet.mini_map.position ') }}',
+    }).addTo(map);
+    @endif
+
+    // Function to update zoom level display
+
+    function updateZoomLevel() {
+        // console.log(e);
+        var zoomLevel = map.getZoom();
+        document.getElementById(`zoom-level-${index}`).innerText = 'Zoom level: ' + zoomLevel;
+    }
+    // Update the zoom level display when the zoom changes
+    map.on('zoomend', updateZoomLevel);
+    // Initialize the zoom level display
+    updateZoomLevel();
+
+    // ------------------------------------ drawControl-------------------------------------------------------------------------------
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    var drawControl = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems
+        },
+        draw: {
+            polygon: mapMode == 'polygon',
+            polyline: false,
+            circle: false,
+            marker: false,
+            circlemarker: false,
+            rectangle: false
+        }
+    });
+    map.addControl(drawControl);
+    //---------------------------map mode switch-------------------------------
+
+    map.on('draw:created', function(e) {
+        var layer = e.layer;
+        drawnItems.addLayer(layer);
+        if (mapMode === 'marker') {
+            var latlng = layer.getLatLng();
+            document.getElementById(`lat_${index}`).value = latlng.lat;
+            document.getElementById(`lng_${index}`).value = latlng.lng;
+
+        }
+        if (mapMode === 'polyline') {
+            var latLngs = JSON.stringify(layer.getLatLngs());
+            document.getElementById(`polyline_${index}`).value = latLngs;
+        }
+        if (mapMode === 'polygon') {
+            var latlng = JSON.stringify(layer.getLatLngs()[0]);
+            console.log(layer.getLatLngs());
+            document.getElementById(`polygon_${index}`).value = latlng;
+        }
+        if (mapMode === 'circle') {
+            var latlng = layer.getLatLng();
+            var radius = layer.getRadius();
+            var circleData = {
+                center: [latlng.lat, latlng.lng],
+                radius: radius
+            };
+            var circleDataString = JSON.stringify(circleData);
+            document.getElementById(`circle_${index}`).value = circleDataString;
+        }
+        if (mapMode === 'rectangle') {
+            var latLngs = JSON.stringify(layer.getLatLngs());
+            document.getElementById(`rectangle_${index}`).value = latLngs;
+        }
+    });
+    map.on('draw:edited', function(e) {
+        var layers = e.layers;
+        layers.eachLayer(function(layer) {
+            if (mapMode === 'marker') {
+                var latlng = layer.getLatLng();
+                document.getElementById(`lat_${index}`).value = latlng.lat;
+                document.getElementById(`lng_${index}`).value = latlng.lng;
 
             }
+            if (mapMode === 'polyline') {
+                var latLngs = JSON.stringify(layer.getLatLngs());
+                document.getElementById(`polyline_${index}`).value = latLngs;
+            }
+            if (mapMode === 'polygon') {
+                var latlng = JSON.stringify(layer.getLatLngs()[0]);
+                document.getElementById(`polygon_${index}`).value = latlng;
+            }
+            if (mapMode === 'circle') {
+                var latlng = layer.getLatLng();
+                var radius = layer.getRadius();
+                var circleData = {
+                    center: [latlng.lat, latlng.lng],
+                    radius: radius
+                };
+                var circleDataString = JSON.stringify(circleData);
+                document.getElementById(`circle_${index}`).value = circleDataString;
+            }
+            if (mapMode === 'rectangle') {
+                var latLngs = JSON.stringify(layer.getLatLngs());
+                document.getElementById(`rectangle_${index}`).value = latLngs;
+            }
+        });
+    });
+    map.on('draw:deleted', function(e) {
+        document.getElementById('lat').value = "";
+        document.getElementById('lng').value = "";
+        document.getElementById('polyline').value = "";
+        document.getElementById('rectangle').value = "";
+        document.getElementById('circle').value = "";
+        document.getElementById('polygon').value = "";
+    });
+
+
+    /*------------------add marker function-------------------------*/
+    if (mapMode == 'marker') {
+        document.getElementById(`add_marker_${index}`).style.display = 'block';
+        // console.log(markercomponent);
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: false,
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            }
+        });
+        document.getElementById(`btn_marker_${index}`).addEventListener('click', addMarker.bind({
+            index,
+            map
+        }))
+    }
+
+    /*------------------add polygon function-------------------------*/
+    if (mapMode == 'polygon') {
+        document.getElementById(`add_polygon_${index}`).style.display = 'block';
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: false,
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            }
+        });
+        document.getElementById(`btn_polygon_${index}`).addEventListener('click', addPolygon.bind({
+            index,
+            map
+        }))
+    }
+    /*------------------add polyline function-------------------------*/
+
+    if (mapMode == 'polyline') {
+        document.getElementById(`add_polyline_${index}`).style.display = 'block';
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: false,
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            }
+        });
+        document.getElementById(`btn_polyline_${index}`).addEventListener('click', addPolyline.bind({
+            index,
+            map
+        }))
+
+    }
+    /*------------------add rectangle function-------------------------*/
+
+    if (mapMode == 'rectangle') {
+        document.getElementById(`add_rectangle_${index}`).style.display = 'block';
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: false,
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            }
+        });
+        document.getElementById(`btn_rectangle_${index}`).addEventListener('click', addRectangle.bind({
+            index,
+            map
+        }))
+
+    }
+    /*------------------add circle function-------------------------*/
+    if (mapMode == 'circle') {
+        document.getElementById(`add_circle_${index}`).style.display = 'block';
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                polygon: false,
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            }
+        });
+        document.getElementById(`btn_circle_${index}`).addEventListener('click', addCircle.bind({
+            index,
+            map
+        }))
+    }
+
+}

@@ -17,12 +17,10 @@
 <body>
     <div id="maps">
     </div>
-    @include('acmeMap/marker', ['index' => 0])
-    @include('acmeMap/circle', ['index' => 1])
-    {{-- @include('acmeMap/polyline', ['index' => 1]/) --}}
-    {{-- @include('acmeMap/circle', ['index' => 2]) --}}
-    {{-- @include('acmeMap/polygon', ['index' => 2]) --}}
-    {{-- @include('acmeMap/rectangle', ['index' => 4]) --}}
+    @include('acmeMap/map', ['index' => 0])
+    @include('acmeMap/map', ['index' => 1])
+
+    {{-- @include('acmeMap/map', ['index' => 1]) --}}
 
     <script src="/assets/js/map/leaflet.js"></script>
     <script src="/assets/js/map/leafletDraw.js"></script>
@@ -34,13 +32,30 @@
         const params = new URLSearchParams(window.location.search);
         const mapsContainer = document.getElementById('maps');
         let index = 0;
-        for (const mode of params.get('mapMode').split(',')) {
-            const modes = [];
-                modes.push(params.get('mapMode').split('-'));  
-                console.log('modes1',modes) 
+        if(!params.get('mapMode')){
+            const modes = ['polyline','circle','marker','polygon','rectangle'];
             AcmeMap.create(document.getElementById(`map-${index}`), {
-                mode: modes,
-                index,
+                     mode: modes,
+                     index,
+                                 });
+                       index++;
+                   }
+             if(params.get('mapMode')){
+for (const mode of params.get('mapMode').split(',')) {
+    const modes = [];
+    if (mode.includes('-')) {
+        modes.push(mode.split('-'));
+        AcmeMap.create(document.getElementById(`map-${index}`), {
+            mode: modes[0],
+            index,
+
+        });
+        index++;
+    }
+    else {
+        AcmeMap.create(document.getElementById(`map-${index}`), {
+            mode: mode,
+            index,
                 layerGroupsAPI: {
                     apiURL: "/api/layer-groups",
                     apiMethod: "GET"
@@ -112,6 +127,8 @@
             });
             index++;
         }
+    }
+}
     </script>
 </body>
 
