@@ -10,7 +10,10 @@ class AcmeMapClass {
     constructor(elem, options = {}, custom_configs = {}) {
         this.elem = elem;
         this.options = options;
-        this.configs = {...ACME_MAP_CONFIGS, ...custom_configs };
+        this.configs = { ...ACME_MAP_CONFIGS, ...custom_configs };
+        this.map_elem = elem;
+        this.map_zoom_level_elem = document.getElementById(`acmemap-zoom-level-${this.options.index}`);
+        this.map_inputs_elem = document.getElementById(`acmemap-inputs-${this.options.index}`);
     }
 
     create() {
@@ -18,6 +21,7 @@ class AcmeMapClass {
         this.addTiles();
         this.addMiniMap();
         this.updateZoomLevel();
+        this.setDrawItemsControls();
         this.drawitems();
         // this.showInputs();
         if (this.options.layerGroups) this.addlayerGroups(this.options.layerGroups);
@@ -56,7 +60,7 @@ class AcmeMapClass {
     addLayerGroupsAPI(apiURL, apiMethod) {
         var self = this;
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText).data;
                 self.options.layerGroups.push(...data);
@@ -83,102 +87,146 @@ class AcmeMapClass {
     updateZoomLevel() {
         const updateZoomLevelFun = () => {
             const zoomLevel = this.map.getZoom();
-            document.getElementById(`zoom-level-${this.options.index}`).innerText = 'Zoom level: ' + zoomLevel;
+            this.map_zoom_level_elem.innerText = 'Zoom level: ' + zoomLevel;
         };
         updateZoomLevelFun();
         this.map.on('zoomend', updateZoomLevelFun);
     }
-
-    drawitems() {
-        var drawnItems = new L.FeatureGroup();
-        this.map.addLayer(drawnItems);
+    setDrawItemsControls() {
+        this.drawnItemsFeatureGroup = new L.FeatureGroup();
+        this.map.addLayer(this.drawnItemsFeatureGroup);
         var mode = this.options.mode;
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems
-            },
-            draw: {
-                polygon: mode.includes('polygon'),
-                polyline: mode.includes('polyline'),
-                circle: mode.includes('circle'),
-                marker: mode.includes('marker'),
-                circlemarker: mode.includes('circlemarker'),
-                rectangle: mode.includes('rectangle')
+        var drawOptions = { draw: {} };
+        if (this.options.AllowDrawItemsEdit)
+            drawOptions.edit = {
+                featureGroup: this.drawnItemsFeatureGroup
+            };
+        // console.log(this.options, this.options.drawItems);
+        for (const [item, options] of Object.entries(this.options.drawItems)) {
+            // console.log([item, options]);
+            if (options.display) {
+                drawOptions.draw[item] = true;
             }
-        });
+            else {
+                drawOptions.draw[item] = false;
+            }
+        }
+        const drawControl = new L.Control.Draw(drawOptions);
 
         this.map.addControl(drawControl);
-        this.drawcreate(drawnItems);
-        this.drawedit(drawnItems);
-        this.drawdelete(drawnItems);
-
+        this.initializeDrawControls();
     }
-
-    drawaction(layer) {
-        var index = this.options.index;
-        var mode = this.options.mode;
-
-        if (mode === 'marker') {
-            var latlng = layer.getLatLng();
-            document.getElementById(`lat_${index}`).value = latlng.lat;
-            document.getElementById(`lng_${index}`).value = latlng.lng;
-        } else {
-            var latLngs;
-            if (mode === 'polyline' || mode === 'rectangle') {
-                latLngs = JSON.stringify(layer.getLatLngs());
-            }
-            if (mode === 'polygon') {
-                latLngs = JSON.stringify(layer.getLatLngs()[0]);
-            }
-            if (mode === 'circle') {
-                var circleData = {
-                    center: [layer.getLatLng().lat, layer.getLatLng().lng],
-                    radius: layer.getRadius()
-                };
-                latLngs = JSON.stringify(circleData);
-            }
-            document.getElementById(`${mode}_${index}`).value = latLngs;
+    drawitems() {
+        var data = this.map_inputs_elem.innerHTML;
+        if (!data)
+            data = "[]";
+        data = JSON.parse(data);
+        for (var i = 0; i < data.length; i++) {
+            var layer = L[data[i].type](data[i].coords, data[i].options);
+            layer._leaflet_id = data[i].id;
+            this.drawnItemsFeatureGroup.addLayer(layer);
         }
     }
-    drawcreate(drawnItems) {
-        this.map.on('draw:created', (e) => {
-            var layer = e.layer;
-            drawnItems.addLayer(layer);
-            this.drawaction(layer);
-            const element = document.querySelector(`.leaflet-draw-draw-${this.options.mode}`);
-            element.style.display = 'none';
 
 
-        });
+    drawItemAction(layer) {
+        this.drawnItemsFeatureGroup.addLayer(layer);
+        var latLngs = null;
+        if (layer instanceof L.Marker) {
+            latLngs = {
+                id: '' + layer._leaflet_id,
+                type: 'marker',
+                coords: [layer.getLatLng().lat, layer.getLatLng().lng],
+                // options: layer.options
+
+            };
+            console.log('Marker coordinates:', latLngs, layer);
+        }
+
+        else if (layer instanceof L.CircleMarker) {
+            latLngs = {
+                id: layer._leaflet_id,
+                type: 'circle',
+                coords: [layer.getLatLng().lat, layer.getLatLng().lng],
+                options: layer.options,
+            };
+            console.log('Circle data:', latLngs);
+        }
+
+        else if (layer instanceof L.Rectangle) {
+            latLngs = {
+                id: layer._leaflet_id,
+                type: 'rectangle',
+                coords: layer.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]),
+                options: layer.options
+            };
+            console.log('Rectangle coordinates:', latLngs, layer);
+        } else if (layer instanceof L.Polygon) {
+            latLngs = {
+                id: layer._leaflet_id,
+                type: 'polygon',
+                coords: layer.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]),
+                options: layer.options,
+            };
+            console.log('Polygon data:', latLngs);
+        }
+        else if (layer instanceof L.Polyline) {
+            latLngs = {
+                id: layer._leaflet_id,
+                type: 'polyline',
+                coords: layer.getLatLngs().map(latlng => [latlng.lat, latlng.lng]),
+                options: layer.options
+            };
+            console.log('Polyline coordinates:', latLngs, layer);
+        }
+        else if (layer instanceof L.Polygon) {
+            latLngs = {
+                id: layer._leaflet_id,
+                type: 'polygon',
+                coords: layer.getLatLngs().map(latlngArray => latlngArray.map(latlng => [latlng.lat, latlng.lng])),
+                options: layer.options
+
+            };
+            console.log('Polygon coordinates:', latLngs, layer);
+        }
+        this.updateInputsElement(latLngs);
     }
+    updateInputsElement(latLngs, remove = false) {
+        var data = this.map_inputs_elem.innerHTML;
+        if (!data)
+            data = "[]";
+        data = JSON.parse(data);
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id == latLngs.id) {
+                data.splice(i, 1);
+                break;
+            }
+        }
+        if (!remove)
+            data.push(latLngs);
+        this.map_inputs_elem.innerHTML = JSON.stringify(data);
+    }
+    initializeDrawControls() {
+        this.map.on('draw:created', (e) => {
+            console.log('Drawing completed');
+            this.drawItemAction(e.layer);
+        });
 
-    drawedit(drawnItems) {
         this.map.on('draw:edited', (e) => {
+            console.log('Drawing edited');
             e.layers.eachLayer((layer) => {
-                this.drawaction(layer);
+                this.drawItemAction(layer);
             });
         });
 
-    }
-    drawdelete(drawnItems) {
-        var mode = this.options.mode;
-        var index = this.options.index;
-        this.map.on('draw:deleted', function(e) {
-            if (mode == 'marker') {
-                document.getElementById(`lat_${index}`).value = "";
-                document.getElementById(`lng_${index}`).value = "";
-            }
-            if (mode != 'marker')
-                document.getElementById(`${mode}_${index}`).value = "";
-            const element = document.querySelector(`.leaflet-draw-draw-${mode}`);
-            element.style.display = 'block';
-
+        this.map.on('draw:deleted', (e) => {
+            console.log('Drawing deleted');
+            e.layers.eachLayer((layer) => {
+                this.updateInputsElement({ id: layer._leaflet_id }, true);
+            });
         });
     }
-
     showInputs() {
-        document.getElementById(`add_${this.options.mode}_${this.options.index}`).style.display = 'block';
+        document.getElementById(`add_${this.options.mode}_${this.options.index} `).style.display = 'block';
     }
-
-
 }
