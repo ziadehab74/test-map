@@ -2,44 +2,20 @@
 <html>
 
 <head>
-    <title>Leaflet Map with Shape Drawing</title>
-    <link rel="stylesheet" href="/assets/css/map/leaflet.css" />
-    <link rel="stylesheet" href="/assets/css/map/leafletDraw.css" />
-    <link rel="stylesheet" href="/assets/css/map/minimap.css" />
-    <link rel="stylesheet" href="/assets/css/map/fullscreen.css" />
-    <link rel="stylesheet" href="/assets/css/map/main.css" />
-
-    <script>
-        const ACME_MAP_CONFIGS = {!! json_encode(config('leaflet')) !!};
-    </script>
+    <title>Acme map</title>
 </head>
 
 <body>
-    <div id="maps">
-    </div>
-    @include('acmeMap/map', ['index' => 0])
-    @include('acmeMap/map', ['index' => 1])
-    {{-- @include('acmeMap/map', ['index' => 0]) --}}
 
-    {{-- @include('acmeMap/map', ['index' => 1]) --}}
-
-    {{-- @include('acmeMap/map', ['index' => 1]) --}}
-
-    {{-- @include('acmeMap/map', ['index' => 1]) --}}
-
-    <script src="/assets/js/map/leaflet.js"></script>
-    <script src="/assets/js/map/leafletDraw.js"></script>
-    <script src="/assets/js/map/minimap.js"></script>
-    <script src="/assets/js/map/fullscreen.js"></script>
-    <script src="/assets/js/map/acmeMap.js"></script>
-
+    @include('acmeMap', ['index' => 0])
     <script>
         const params = new URLSearchParams(window.location.search);
         const mapsContainer = document.getElementById('maps');
         let index = 0;
             AcmeMap.create(document.getElementById(`acmemap-map-0`), {
-                mapmode: false,
+                textarea:true,
                 AllowDrawItemsEdit: true,
+                index,
                 drawItems: {
                     polygon: {
                         display: true,
@@ -66,41 +42,85 @@
                         drawOnce: false,
                     }
                 },
-                index,
+                layerGroups: [
+                            {
+                                label: "Markers",
+                                type: "marker",
+                                data: [
+                                    { position: [30.0444, 31.2357], options: { color: "red" }, popupData: "cairo" },
+                                    { position: [30.0326, 31.2268], options: { color: "red" }, popupData: null }
+                                ]
+                            },
+                            {
+                                label: "Polygon",
+                                type: "polygon",
+                                data: [
+                                    {
+                                        position: [
+                                            [30.045055872848327,31.2360754609108],
+                                            [30.045007114914142,31.235941350460056],
+                                            [30.04497925322669,31.23581260442734],
+                                            [30.044930495254796,31.23568117618561],
+                                            [30.044916564401273,31.23556047677994],
+                                            [30.044879415448957,31.235407590866092],
+                                            [30.044877093639002,31.23532980680466],
+                                            [30.044849231914956,31.235260069370273],
+                                            [30.044791186631414,31.23519837856293],
+                                            [30.04474010675377,31.235160827636722],
+                                            [30.04470063592117,31.235152781009678]
+                                                      ],
+                                        options: { color: "red" },
+                                        popupData: null
+                                    }
+                                ]
+                            }
+                ],
             });
-            AcmeMap.create(document.getElementById(`acmemap-map-1`), {
-                mapmode: false,
-                AllowDrawItemsEdit: true,
-                drawItems: {
-                    polygon: {
-                        display: true,
-                        drawOnce: false,
-                    },
-                    polyline: {
-                        display: true,
-                        drawOnce: false,
-                    },
-                    circle: {
-                        display: true,
-                        drawOnce: false,
-                    },
-                    marker: {
-                        display: true,
-                        drawOnce: false,
-                    },
-                    circlemarker: {
-                        display: true,
-                        drawOnce: false,
-                    },
-                    rectangle: {
-                        display: true,
-                        drawOnce: false,
-                    }
-                },
-                index,
-            });
+
+
+
+
+
+            // AcmeMap.create(document.getElementById(`acmemap-map-1`), {
+            //     mapmode: false,
+            //     AllowDrawItemsEdit: true,
+            //     drawItems: {
+            //         polygon: {
+            //             display: true,
+            //             drawOnce: false,
+            //         },
+            //         polyline: {
+            //             display: true,
+            //             drawOnce: false,
+            //         },
+            //         circle: {
+            //             display: true,
+            //             drawOnce: false,
+            //         },
+            //         marker: {
+            //             display: true,
+            //             drawOnce: false,
+            //         },
+            //         circlemarker: {
+            //             display: true,
+            //             drawOnce: false,
+            //         },
+            //         rectangle: {
+            //             display: true,
+            //             drawOnce: false,
+            //         }
+            //     },
+            //     index,
+            // });
+
+
+
+
+
+
+
         // if (!params.get('mapMode')) {
-  
+
         // } else if (params.get('mapMode')) {
         //     for (const mode of params.get('mapMode').split(',')) {
         //         const modes = [];
@@ -117,7 +137,7 @@
         //             drawOnce: false,
         //         });
         //             AcmeMap.create(document.getElementById(`acmemap-map-${index}`), {
-                        
+
         //                 mapmode: true,
         //                 drawItems: mode,
         //                 index,

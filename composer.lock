@@ -4,8 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca29ae9c91324be9907575696d46589c",
+    "content-hash": "da4ac955956eb727b169d3aa304eba29",
     "packages": [
+        {
+            "name": "acme/acmemap",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "git@gitlab.com:acme-saico-2020/utilities/acme_packages/acme_maps.git",
+                "reference": "8d39ebae4abf9d928fa60773ded57675c0f4a77f"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Acme\\Acmemap\\providers\\AcmemapServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Acme\\Acmemap\\": "src/"
+                },
+                "files": [
+                    "src/Providers/AcmemapServiceProvider.php"
+                ]
+            },
+            "authors": [
+                {
+                    "name": "ziad ehab ahmed",
+                    "email": "84890422+ziadehab74@users.noreply.github.com"
+                }
+            ],
+            "time": "2024-06-12T10:17:21+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.12.1",

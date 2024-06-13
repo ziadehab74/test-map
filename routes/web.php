@@ -47,4 +47,4 @@ use Illuminate\Support\Facades\Route;
 // Route::post('/save-marker', [MapController::class, 'store']);
 // Route::post('/add-bus', [MapController::class, 'addBus']);
 // Route::post('/add-station', [MapController::class, 'addStation']);
-Route::view('/', 'acmeMap/landing');
+Route::view('/', 'landing');

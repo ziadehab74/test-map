@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "acme/acmemap": "^1.0",
         "jantinnerezo/livewire-alert": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/prompts": "^0.1.17",
@@ -13,8 +14,11 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4"
     },
-    "repositories": [
-    ],
+    "repositories": [{
+        "url": "git@gitlab.com:acme-saico-2020/utilities/acme_packages/acme_maps.git",
+        "type": "git"
+    }],
+
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.0",

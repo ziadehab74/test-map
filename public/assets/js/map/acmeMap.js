@@ -10,7 +10,7 @@ class AcmeMapClass {
     constructor(elem, options = {}, custom_configs = {}) {
         this.elem = elem;
         this.options = options;
-        this.configs = { ...ACME_MAP_CONFIGS, ...custom_configs };
+        this.configs = {...ACME_MAP_CONFIGS, ...custom_configs };
         this.map_elem = elem;
         this.map_zoom_level_elem = document.getElementById(`acmemap-zoom-level-${this.options.index}`);
         this.map_inputs_elem = document.getElementById(`acmemap-inputs-${this.options.index}`);
@@ -19,10 +19,13 @@ class AcmeMapClass {
     create() {
         this.map = L.map(this.elem).setView(this.configs.center_point.split(','), this.configs.zoom_level);
         this.addTiles();
+        this.fullscreen();
         this.addMiniMap();
         this.updateZoomLevel();
         this.setDrawItemsControls();
         this.drawitems();
+        this.showTextarea();
+        this.MovingMarker();
         // this.showInputs();
         if (this.options.layerGroups) this.addlayerGroups(this.options.layerGroups);
         if (this.options.layerGroupsAPI) this.addLayerGroupsAPI(this.options.layerGroupsAPI.apiURL, this.options.layerGroupsAPI.apiMethod);
@@ -42,7 +45,11 @@ class AcmeMapClass {
             }
         }
     }
-
+    fullscreen() {
+        if (!this.configs.show_full_screen)
+            return;
+        this.map.addControl(new L.Control.Fullscreen());
+    }
     addlayerGroups(layerGroups) {
         this.overlays = {};
         layerGroups.forEach(group => {
@@ -60,7 +67,7 @@ class AcmeMapClass {
     addLayerGroupsAPI(apiURL, apiMethod) {
         var self = this;
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
+        xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText).data;
                 self.options.layerGroups.push(...data);
@@ -106,8 +113,7 @@ class AcmeMapClass {
             // console.log([item, options]);
             if (options.display) {
                 drawOptions.draw[item] = true;
-            }
-            else {
+            } else {
                 drawOptions.draw[item] = false;
             }
         }
@@ -141,9 +147,7 @@ class AcmeMapClass {
 
             };
             console.log('Marker coordinates:', latLngs, layer);
-        }
-
-        else if (layer instanceof L.CircleMarker) {
+        } else if (layer instanceof L.CircleMarker) {
             latLngs = {
                 id: layer._leaflet_id,
                 type: 'circle',
@@ -151,9 +155,7 @@ class AcmeMapClass {
                 options: layer.options,
             };
             console.log('Circle data:', latLngs);
-        }
-
-        else if (layer instanceof L.Rectangle) {
+        } else if (layer instanceof L.Rectangle) {
             latLngs = {
                 id: layer._leaflet_id,
                 type: 'rectangle',
@@ -169,8 +171,7 @@ class AcmeMapClass {
                 options: layer.options,
             };
             console.log('Polygon data:', latLngs);
-        }
-        else if (layer instanceof L.Polyline) {
+        } else if (layer instanceof L.Polyline) {
             latLngs = {
                 id: layer._leaflet_id,
                 type: 'polyline',
@@ -178,8 +179,7 @@ class AcmeMapClass {
                 options: layer.options
             };
             console.log('Polyline coordinates:', latLngs, layer);
-        }
-        else if (layer instanceof L.Polygon) {
+        } else if (layer instanceof L.Polygon) {
             latLngs = {
                 id: layer._leaflet_id,
                 type: 'polygon',
@@ -228,5 +228,40 @@ class AcmeMapClass {
     }
     showInputs() {
         document.getElementById(`add_${this.options.mode}_${this.options.index} `).style.display = 'block';
+    }
+    showTextarea() {
+        if (this.options.textarea)
+            document.getElementById(`acmemap-inputs-${this.options.index}`).style.display = 'block';
+    }
+    MovingMarker() {
+        const busData = this.options.layerGroups[1].data[0];
+        const position = busData.position;
+
+        console.log(position);
+
+        const marker = L.Marker.movingMarker(position, 100000, { autostart: true }).addTo(this.map);
+        const popupContent = `<table>
+                                <thead>
+                                    <tr>
+                                        <th>Bus Number</th>
+                                        <th>Route</th>
+                                        <th>Driver</th>
+                                        <th>Departure Time</th>
+                                        <th>Arrival Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>101</td>
+                                        <td>City Center to Suburb</td>
+                                        <td>John Doe</td>
+                                        <td>08:00 AM</td>
+                                        <td>09:00 AM</td>
+                                    </tr>
+                                </tbody>
+                              </table>`;
+
+        marker.bindPopup(popupContent);
+        L.polyline(position, { color: 'green' }).addTo(this.map);
     }
 }
